@@ -42,3 +42,15 @@ app.listen(PORT, () => {
 });
 
 module.exports = app;
+
+// En server.js, actualizar la configuración de CORS
+const corsOptions = {
+  origin: process.env.NODE_ENV === 'production' 
+    ? ['https://biblioteca-back-end-y7y6-hy4tic7xo-nicols-projects-e015f16d.vercel.app']
+    : ['http://localhost:3000', 'http://localhost:5173'],
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true
+};
+
+app.use(cors(corsOptions));
