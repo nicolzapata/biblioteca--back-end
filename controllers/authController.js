@@ -1,3 +1,4 @@
+const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 
 const authController = {
@@ -55,8 +56,16 @@ const authController = {
         return res.status(400).json({ message: 'Credenciales inválidas' });
       }
 
+      // Generar token JWT
+      const token = jwt.sign(
+        { userId: user._id, role: user.role },
+        process.env.JWT_SECRET,
+        { expiresIn: '7d' }
+      );
+
       res.json({
         message: 'Login exitoso',
+        token,
         user: {
           id: user._id,
           name: user.name,
