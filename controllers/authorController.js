@@ -4,26 +4,10 @@ const authorController = {
   // Obtener todos los autores
   getAllAuthors: async (req, res) => {
     try {
-      const { page = 1, limit = 10, search } = req.query;
-      const query = { isActive: true };
-
-      if (search) {
-        query.name = { $regex: search, $options: 'i' };
-      }
-
-      const authors = await Author.find(query)
-        .limit(limit * 1)
-        .skip((page - 1) * limit)
+      const authors = await Author.find({ isActive: true })
         .sort({ name: 1 });
 
-      const total = await Author.countDocuments(query);
-
-      res.json({
-        authors,
-        totalPages: Math.ceil(total / limit),
-        currentPage: page,
-        total
-      });
+      res.json({ authors });
     } catch (error) {
       res.status(500).json({ message: 'Error del servidor' });
     }
@@ -38,7 +22,7 @@ const authorController = {
         return res.status(404).json({ message: 'Autor no encontrado' });
       }
 
-      res.json(author);
+      res.json({ author });
     } catch (error) {
       res.status(500).json({ message: 'Error del servidor' });
     }

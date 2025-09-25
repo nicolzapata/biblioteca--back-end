@@ -1,37 +1,14 @@
 const User = require('../models/User');
 
 const userController = {
-  // Obtener todos los usuarios (solo admin)
+  // Obtener todos los usuarios
   getAllUsers: async (req, res) => {
     try {
-      const { page = 1, limit = 10, search, role } = req.query;
-      const query = {};
-
-      if (search) {
-        query.$or = [
-          { name: { $regex: search, $options: 'i' } },
-          { email: { $regex: search, $options: 'i' } }
-        ];
-      }
-
-      if (role) {
-        query.role = role;
-      }
-
-      const users = await User.find(query)
+      const users = await User.find()
         .select('-password')
-        .limit(limit * 1)
-        .skip((page - 1) * limit)
         .sort({ createdAt: -1 });
 
-      const total = await User.countDocuments(query);
-
-      res.json({
-        users,
-        totalPages: Math.ceil(total / limit),
-        currentPage: page,
-        total
-      });
+      res.json({ users });
     } catch (error) {
       res.status(500).json({ message: 'Error del servidor' });
     }
@@ -46,7 +23,7 @@ const userController = {
         return res.status(404).json({ message: 'Usuario no encontrado' });
       }
 
-      res.json(user);
+      res.json({ user });
     } catch (error) {
       res.status(500).json({ message: 'Error del servidor' });
     }
@@ -69,34 +46,6 @@ const userController = {
 
       res.json({
         message: 'Usuario actualizado exitosamente',
-        user
-      });
-    } catch (error) {
-      res.status(500).json({ message: 'Error del servidor' });
-    }
-  },
-
-  // Cambiar rol de usuario (solo admin)
-  changeUserRole: async (req, res) => {
-    try {
-      const { role } = req.body;
-
-      if (!['user', 'librarian', 'admin'].includes(role)) {
-        return res.status(400).json({ message: 'Rol inválido' });
-      }
-
-      const user = await User.findByIdAndUpdate(
-        req.params.id,
-        { role },
-        { new: true }
-      ).select('-password');
-
-      if (!user) {
-        return res.status(404).json({ message: 'Usuario no encontrado' });
-      }
-
-      res.json({
-        message: 'Rol actualizado exitosamente',
         user
       });
     } catch (error) {

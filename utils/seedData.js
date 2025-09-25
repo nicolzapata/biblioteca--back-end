@@ -10,44 +10,29 @@ const seedData = async () => {
     await mongoose.connect(process.env.MONGODB_URI);
     console.log('Conectado a MongoDB');
 
-    // Limpiar datos existentes (opcional)
-    // await User.deleteMany({});
-    // await Author.deleteMany({});
-    // await Book.deleteMany({});
-
-    // Crear usuario administrador
+    // Crear usuario admin
     const existingAdmin = await User.findOne({ email: 'admin@biblioteca.com' });
     if (!existingAdmin) {
-      const adminPassword = await bcrypt.hash('admin123', 10);
       await User.create({
         name: 'Administrador',
         email: 'admin@biblioteca.com',
-        password: adminPassword,
-        role: 'admin',
-        phone: '123456789'
+        password: 'admin123',
+        role: 'admin'
       });
-      console.log('✅ Usuario administrador creado');
+      console.log('✅ Usuario admin creado');
     }
 
-    // Crear autores de ejemplo
+    // Crear autores
     const authorsData = [
       {
         name: 'Gabriel García Márquez',
-        biography: 'Escritor colombiano, premio Nobel de Literatura 1982',
-        nationality: 'Colombiano',
-        birthDate: new Date('1927-03-06')
+        biography: 'Escritor colombiano, premio Nobel',
+        nationality: 'Colombiano'
       },
       {
         name: 'Isabel Allende',
-        biography: 'Escritora chilena de renombre internacional',
-        nationality: 'Chilena',
-        birthDate: new Date('1942-08-02')
-      },
-      {
-        name: 'Mario Vargas Llosa',
-        biography: 'Escritor peruano, premio Nobel de Literatura 2010',
-        nationality: 'Peruano',
-        birthDate: new Date('1936-03-28')
+        biography: 'Escritora chilena',
+        nationality: 'Chilena'
       }
     ];
 
@@ -59,44 +44,24 @@ const seedData = async () => {
       }
     }
 
-    // Crear libros de ejemplo
+    // Crear libros
     const authors = await Author.find();
     const booksData = [
       {
         title: 'Cien años de soledad',
-        author: authors.find(a => a.name === 'Gabriel García Márquez')._id,
+        author: authors[0]._id,
         isbn: '9780307474728',
         genre: 'Realismo mágico',
-        publicationDate: new Date('1967-06-05'),
-        publisher: 'Editorial Sudamericana',
-        pages: 471,
-        description: 'La obra maestra de García Márquez que narra la historia de la familia Buendía',
         totalCopies: 5,
         availableCopies: 5
       },
       {
         title: 'La casa de los espíritus',
-        author: authors.find(a => a.name === 'Isabel Allende')._id,
+        author: authors[1]._id,
         isbn: '9788401242144',
         genre: 'Novela',
-        publicationDate: new Date('1982-10-01'),
-        publisher: 'Plaza & Janés',
-        pages: 433,
-        description: 'Primera novela de Isabel Allende',
         totalCopies: 3,
         availableCopies: 3
-      },
-      {
-        title: 'La ciudad y los perros',
-        author: authors.find(a => a.name === 'Mario Vargas Llosa')._id,
-        isbn: '9788432217326',
-        genre: 'Novela',
-        publicationDate: new Date('1963-10-01'),
-        publisher: 'Seix Barral',
-        pages: 418,
-        description: 'Primera novela publicada de Vargas Llosa',
-        totalCopies: 4,
-        availableCopies: 4
       }
     ];
 
@@ -108,17 +73,12 @@ const seedData = async () => {
       }
     }
 
-    console.log('🎉 Datos de prueba creados exitosamente');
+    console.log('🎉 Datos creados exitosamente');
     process.exit(0);
   } catch (error) {
-    console.error('❌ Error al crear datos de prueba:', error);
+    console.error('❌ Error:', error);
     process.exit(1);
   }
 };
 
-// Ejecutar si se llama directamente
-if (require.main === module) {
-  seedData();
-}
-
-module.exports = seedData;
+seedData();

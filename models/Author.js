@@ -1,9 +1,10 @@
 const mongoose = require('mongoose');
+const Book = require('./Book');
 
 const authorSchema = new mongoose.Schema({
   name: {
     type: String,
-    required: [true, 'El nombre del autor es obligatorio'],
+    required: true,
     trim: true
   },
   biography: {
@@ -12,8 +13,6 @@ const authorSchema = new mongoose.Schema({
   },
   birthDate: Date,
   nationality: String,
-  website: String,
-  photo: String,
   isActive: {
     type: Boolean,
     default: true
@@ -22,13 +21,5 @@ const authorSchema = new mongoose.Schema({
   timestamps: true
 });
 
-// Virtual para obtener libros del autor
-authorSchema.virtual('books', {
-  ref: 'Book',
-  localField: '_id',
-  foreignField: 'author'
-});
-
-authorSchema.set('toJSON', { virtuals: true });
 
 module.exports = mongoose.model('Author', authorSchema);

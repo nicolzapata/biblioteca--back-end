@@ -1,12 +1,7 @@
 const User = require('../models/User');
-const jwt = require('jsonwebtoken');
-
-const generateToken = (userId) => {
-  return jwt.sign({ userId }, process.env.JWT_SECRET, { expiresIn: '30d' });
-};
 
 const authController = {
-  // Registro
+  // Registro simple
   register: async (req, res) => {
     try {
       const { name, email, password, phone, address } = req.body;
@@ -28,12 +23,8 @@ const authController = {
 
       await user.save();
 
-      // Generar token
-      const token = generateToken(user._id);
-
       res.status(201).json({
         message: 'Usuario registrado exitosamente',
-        token,
         user: {
           id: user._id,
           name: user.name,
@@ -43,11 +34,11 @@ const authController = {
       });
     } catch (error) {
       console.error('Error en registro:', error);
-      res.status(500).json({ message: 'Error del servidor', error: error.message });
+      res.status(500).json({ message: 'Error del servidor' });
     }
   },
 
-  // Login
+  // Login simple
   login: async (req, res) => {
     try {
       const { email, password } = req.body;
@@ -64,12 +55,8 @@ const authController = {
         return res.status(400).json({ message: 'Credenciales inválidas' });
       }
 
-      // Generar token
-      const token = generateToken(user._id);
-
       res.json({
         message: 'Login exitoso',
-        token,
         user: {
           id: user._id,
           name: user.name,
@@ -79,16 +66,6 @@ const authController = {
       });
     } catch (error) {
       console.error('Error en login:', error);
-      res.status(500).json({ message: 'Error del servidor' });
-    }
-  },
-
-  // Obtener perfil del usuario
-  getProfile: async (req, res) => {
-    try {
-      const user = await User.findById(req.user._id).select('-password');
-      res.json(user);
-    } catch (error) {
       res.status(500).json({ message: 'Error del servidor' });
     }
   }

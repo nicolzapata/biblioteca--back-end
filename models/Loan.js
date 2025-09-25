@@ -4,12 +4,12 @@ const loanSchema = new mongoose.Schema({
   user: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
-    required: [true, 'El usuario es obligatorio']
+    required: true
   },
   book: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Book',
-    required: [true, 'El libro es obligatorio']
+    required: true
   },
   loanDate: {
     type: Date,
@@ -17,7 +17,7 @@ const loanSchema = new mongoose.Schema({
   },
   dueDate: {
     type: Date,
-    required: [true, 'La fecha de vencimiento es obligatoria']
+    required: true
   },
   returnDate: Date,
   status: {
@@ -25,11 +25,7 @@ const loanSchema = new mongoose.Schema({
     enum: ['active', 'returned', 'overdue'],
     default: 'active'
   },
-  notes: String,
-  renewalCount: {
-    type: Number,
-    default: 0
-  }
+  notes: String
 }, {
   timestamps: true
 });

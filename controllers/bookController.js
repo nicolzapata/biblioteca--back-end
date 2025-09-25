@@ -5,38 +5,18 @@ const bookController = {
   // Obtener todos los libros
   getAllBooks: async (req, res) => {
     try {
-      const { page = 1, limit = 10, search, genre } = req.query;
-      const query = { isActive: true };
-
-      // Filtros
-      if (search) {
-        query.$text = { $search: search };
-      }
-      if (genre) {
-        query.genre = genre;
-      }
-
-      const books = await Book.find(query)
+      const books = await Book.find({ isActive: true })
         .populate('author', 'name')
-        .limit(limit * 1)
-        .skip((page - 1) * limit)
         .sort({ createdAt: -1 });
 
-      const total = await Book.countDocuments(query);
-
-      res.json({
-        books,
-        totalPages: Math.ceil(total / limit),
-        currentPage: page,
-        total
-      });
+      res.json({ books });
     } catch (error) {
       console.error('Error al obtener libros:', error);
       res.status(500).json({ message: 'Error del servidor' });
     }
   },
 
-  // Obtener un libro por ID
+  // Obtener libro por ID
   getBookById: async (req, res) => {
     try {
       const book = await Book.findById(req.params.id).populate('author');
@@ -45,7 +25,7 @@ const bookController = {
         return res.status(404).json({ message: 'Libro no encontrado' });
       }
 
-      res.json(book);
+      res.json({ book });
     } catch (error) {
       res.status(500).json({ message: 'Error del servidor' });
     }
@@ -126,7 +106,7 @@ const bookController = {
     }
   },
 
-  // Eliminar libro (soft delete)
+  // Eliminar libro
   deleteBook: async (req, res) => {
     try {
       const book = await Book.findByIdAndUpdate(
@@ -140,16 +120,6 @@ const bookController = {
       }
 
       res.json({ message: 'Libro eliminado exitosamente' });
-    } catch (error) {
-      res.status(500).json({ message: 'Error del servidor' });
-    }
-  },
-
-  // Obtener géneros disponibles
-  getGenres: async (req, res) => {
-    try {
-      const genres = await Book.distinct('genre', { isActive: true });
-      res.json(genres);
     } catch (error) {
       res.status(500).json({ message: 'Error del servidor' });
     }

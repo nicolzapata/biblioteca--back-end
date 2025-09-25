@@ -3,22 +3,22 @@ const mongoose = require('mongoose');
 const bookSchema = new mongoose.Schema({
   title: {
     type: String,
-    required: [true, 'El título es obligatorio'],
+    required: true,
     trim: true
   },
   author: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Author',
-    required: [true, 'El autor es obligatorio']
+    required: true
   },
   isbn: {
     type: String,
     unique: true,
-    required: [true, 'El ISBN es obligatorio']
+    required: true
   },
   genre: {
     type: String,
-    required: [true, 'El género es obligatorio']
+    required: true
   },
   publicationDate: Date,
   publisher: String,
@@ -30,19 +30,15 @@ const bookSchema = new mongoose.Schema({
     type: String,
     default: 'Español'
   },
-  description: {
-    type: String,
-    maxlength: 1000
-  },
-  coverImage: String,
+  description: String,
   totalCopies: {
     type: Number,
-    required: [true, 'El número total de copias es obligatorio'],
+    required: true,
     min: 1
   },
   availableCopies: {
     type: Number,
-    required: [true, 'El número de copias disponibles es obligatorio'],
+    required: true,
     min: 0
   },
   isActive: {
@@ -52,8 +48,5 @@ const bookSchema = new mongoose.Schema({
 }, {
   timestamps: true
 });
-
-// Índices para búsqueda
-bookSchema.index({ title: 'text', genre: 'text' });
 
 module.exports = mongoose.model('Book', bookSchema);
