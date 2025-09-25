@@ -1,5 +1,7 @@
 const express = require('express');
 const cors = require('cors');
+const session = require('express-session');
+const MongoStore = require('connect-mongo');
 require('dotenv').config();
 
 const connectDB = require('./config/database');
@@ -16,8 +18,25 @@ const app = express();
 // Conectar a MongoDB
 connectDB();
 
+// Configurar sesiones
+app.use(session({
+  secret: process.env.SESSION_SECRET || 'tu_secreto_de_sesion',
+  resave: false,
+  saveUninitialized: false,
+  store: MongoStore.create({
+    mongoUrl: process.env.MONGODB_URI,
+    collectionName: 'sessions'
+  }),
+  cookie: {
+    maxAge: 1000 * 60 * 60 * 24 // 24 horas
+  }
+}));
+
 // Middleware
-app.use(cors());
+app.use(cors({
+  origin: true, // Permitir cualquier origen para desarrollo
+  credentials: true // Permitir cookies de sesión
+}));
 app.use(express.json());
 
 // Rutas

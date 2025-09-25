@@ -1,4 +1,3 @@
-const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 
 const authController = {
@@ -39,7 +38,7 @@ const authController = {
     }
   },
 
-  // Login simple
+  // Login con sesiones
   login: async (req, res) => {
     try {
       const { email, password } = req.body;
@@ -56,26 +55,45 @@ const authController = {
         return res.status(400).json({ message: 'Credenciales inválidas' });
       }
 
-      // Generar token JWT
-      const token = jwt.sign(
-        { userId: user._id, role: user.role },
-        process.env.JWT_SECRET,
-        { expiresIn: '7d' }
-      );
+      // Guardar usuario en sesión
+      req.session.user = {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role
+      };
 
       res.json({
         message: 'Login exitoso',
-        token,
-        user: {
-          id: user._id,
-          name: user.name,
-          email: user.email,
-          role: user.role
-        }
+        user: req.session.user
       });
     } catch (error) {
       console.error('Error en login:', error);
       res.status(500).json({ message: 'Error del servidor' });
+    }
+  },
+
+  // Logout
+  logout: async (req, res) => {
+    try {
+      req.session.destroy((err) => {
+        if (err) {
+          return res.status(500).json({ message: 'Error al cerrar sesión' });
+        }
+        res.clearCookie('connect.sid');
+        res.json({ message: 'Sesión cerrada exitosamente' });
+      });
+    } catch (error) {
+      res.status(500).json({ message: 'Error del servidor' });
+    }
+  },
+
+  // Obtener usuario actual de la sesión
+  getCurrentUser: async (req, res) => {
+    if (req.session.user) {
+      res.json({ user: req.session.user });
+    } else {
+      res.status(401).json({ message: 'No hay sesión activa' });
     }
   }
 };
