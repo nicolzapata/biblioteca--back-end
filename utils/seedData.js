@@ -15,6 +15,7 @@ const seedData = async () => {
     if (!existingAdmin) {
       await User.create({
         name: 'Administrador',
+        username: 'admin',
         email: 'admin@biblioteca.com',
         password: 'admin123',
         role: 'admin'

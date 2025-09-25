@@ -4,10 +4,10 @@ const authController = {
   // Registro simple
   register: async (req, res) => {
     try {
-      const { name, email, password, phone, address } = req.body;
+      const { name, username, email, password, phone, address } = req.body;
 
       // Verificar si el usuario ya existe
-      const existingUser = await User.findOne({ email });
+      const existingUser = await User.findOne({ $or: [{ email }, { username }] });
       if (existingUser) {
         return res.status(400).json({ message: 'El usuario ya existe' });
       }
@@ -15,6 +15,7 @@ const authController = {
       // Crear nuevo usuario
       const user = new User({
         name,
+        username,
         email,
         password,
         phone,
@@ -43,8 +44,8 @@ const authController = {
     try {
       const { email, password } = req.body;
 
-      // Buscar usuario
-      const user = await User.findOne({ email });
+      // Buscar usuario por email o username
+      const user = await User.findOne({ $or: [{ email }, { username: email }] });
       if (!user) {
         return res.status(400).json({ message: 'Credenciales inválidas' });
       }
