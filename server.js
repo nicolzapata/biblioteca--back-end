@@ -34,7 +34,7 @@ app.use(session({
 
 // Middleware
 app.use(cors({
-  origin: true, // Permitir cualquier origen para desarrollo
+  origin: true, // Permitir todos los origins para testing
   credentials: true // Permitir cookies de sesión
 }));
 app.use(express.json());

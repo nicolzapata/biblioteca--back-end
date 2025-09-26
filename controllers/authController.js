@@ -42,16 +42,25 @@ const authController = {
   // Login con sesiones
   login: async (req, res) => {
     try {
-      const { email, password } = req.body;
+      const { email, username, password } = req.body;
+      console.log('Login attempt:', { email, username, password });
+      const input = email || username;
+      if (!input) {
+        return res.status(400).json({ message: 'Debe proporcionar email o username' });
+      }
+      const normalizedInput = input.toLowerCase();
+      console.log('Normalized input:', normalizedInput);
 
       // Buscar usuario por email o username
-      const user = await User.findOne({ $or: [{ email }, { username: email }] });
+      const user = await User.findOne({ $or: [{ email: normalizedInput }, { username: normalizedInput }] });
+      console.log('User found:', user ? { id: user._id, email: user.email, username: user.username } : null);
       if (!user) {
         return res.status(400).json({ message: 'Credenciales inválidas' });
       }
 
       // Verificar contraseña
       const isValidPassword = await user.comparePassword(password);
+      console.log('Password valid:', isValidPassword);
       if (!isValidPassword) {
         return res.status(400).json({ message: 'Credenciales inválidas' });
       }
