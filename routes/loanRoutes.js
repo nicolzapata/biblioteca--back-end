@@ -6,6 +6,7 @@ const router = express.Router();
 
 // Rutas protegidas
 router.get('/', authMiddleware, loanController.getAllLoans);
+router.get('/:id', authMiddleware, loanController.getLoanById);
 router.get('/stats', authMiddleware, loanController.getStats);
 router.post('/', authMiddleware, loanController.createLoan);
 router.patch('/:id/return', authMiddleware, loanController.returnBook);

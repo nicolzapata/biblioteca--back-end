@@ -3,6 +3,7 @@ const bcrypt = require('bcryptjs');
 const User = require('../models/User');
 const Author = require('../models/Author');
 const Book = require('../models/Book');
+const Loan = require('../models/Loan');
 require('dotenv').config();
 
 const seedData = async () => {
@@ -10,17 +11,18 @@ const seedData = async () => {
     await mongoose.connect(process.env.MONGODB_URI);
     console.log('Conectado a MongoDB');
 
-    // Crear usuario admin
-    const existingAdmin = await User.findOne({ email: 'admin@biblioteca.com' });
-    if (!existingAdmin) {
+
+    // Crear usuario Nicol admin
+    const existingNicol = await User.findOne({ email: 'nicol@admin.com' });
+    if (!existingNicol) {
       await User.create({
-        name: 'Administrador',
-        username: 'admin',
-        email: 'admin@biblioteca.com',
-        password: 'admin123',
+        name: 'Nicol',
+        username: 'nicol',
+        email: 'nicol@admin.com',
+        password: 'nicol123',
         role: 'admin'
       });
-      console.log('✅ Usuario admin creado');
+      console.log('✅ Usuario admin Nicol creado');
     }
 
     // Crear autores
@@ -71,6 +73,32 @@ const seedData = async () => {
       if (!existing) {
         await Book.create(bookData);
         console.log(`✅ Libro creado: ${bookData.title}`);
+      }
+    }
+
+    // Crear préstamos de prueba
+    const users = await User.find();
+    const books = await Book.find();
+    const loansData = [
+      {
+        user: users[0]._id,
+        book: books[0]._id,
+        dueDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) // 7 días
+      },
+      {
+        user: users[0]._id,
+        book: books[1]._id,
+        dueDate: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000), // 14 días
+        returnDate: new Date(),
+        status: 'returned'
+      }
+    ];
+
+    for (let loanData of loansData) {
+      const existing = await Loan.findOne({ user: loanData.user, book: loanData.book });
+      if (!existing) {
+        await Loan.create(loanData);
+        console.log(`✅ Préstamo creado para usuario ${users[0].name}`);
       }
     }
 
