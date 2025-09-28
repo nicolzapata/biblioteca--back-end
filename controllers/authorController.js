@@ -47,21 +47,31 @@ const authorController = {
   // Actualizar autor
   updateAuthor: async (req, res) => {
     try {
+      console.log('Datos recibidos para actualizar autor:', req.body);
+      // Filtrar campos vacíos para evitar problemas con validaciones en campos opcionales
+      const updateData = Object.fromEntries(
+        Object.entries(req.body).filter(([key, value]) => value !== "")
+      );
+      console.log('Datos filtrados para actualizar:', updateData);
       const author = await Author.findByIdAndUpdate(
         req.params.id,
-        req.body,
+        updateData,
         { new: true, runValidators: true }
       );
 
       if (!author) {
+        console.log('Autor no encontrado');
         return res.status(404).json({ message: 'Autor no encontrado' });
       }
 
+      console.log('Autor actualizado:', author);
       res.json({
         message: 'Autor actualizado exitosamente',
         author
       });
     } catch (error) {
+      console.error('Error al actualizar autor:', error);
+      console.error('Stack:', error.stack);
       res.status(500).json({ message: 'Error del servidor' });
     }
   },

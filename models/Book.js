@@ -31,6 +31,10 @@ const bookSchema = new mongoose.Schema({
     default: 'Español'
   },
   description: String,
+  imageUrl: {
+    type: String,
+    default: 'https://via.placeholder.com/150x200?text=Libro'
+  },
   totalCopies: {
     type: Number,
     required: true,

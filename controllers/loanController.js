@@ -139,6 +139,37 @@ const loanController = {
     }
   },
 
+  // Actualizar préstamo
+  updateLoan: async (req, res) => {
+    try {
+      const { user, book, dueDate, status } = req.body;
+
+      const loan = await Loan.findByIdAndUpdate(
+        req.params.id,
+        {
+          user,
+          book,
+          dueDate: dueDate ? new Date(dueDate) : undefined,
+          status
+        },
+        { new: true, runValidators: true }
+      ).populate('user', 'name email')
+       .populate('book', 'title isbn');
+
+      if (!loan) {
+        return res.status(404).json({ message: 'Préstamo no encontrado' });
+      }
+
+      res.json({
+        message: 'Préstamo actualizado exitosamente',
+        loan
+      });
+    } catch (error) {
+      console.error('Error al actualizar préstamo:', error);
+      res.status(500).json({ message: 'Error del servidor' });
+    }
+  },
+
   // Obtener estadísticas
   getStats: async (req, res) => {
     try {
