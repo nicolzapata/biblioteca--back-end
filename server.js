@@ -5,6 +5,8 @@ const MongoStore = require('connect-mongo');
 require('dotenv').config();
 
 const connectDB = require('./config/database');
+const errorHandler = require('./middleware/errorHandler');
+const logger = require('./middleware/logger');
 
 // Importar rutas
 const authRoutes = require('./routes/authRoutes');
@@ -12,6 +14,7 @@ const bookRoutes = require('./routes/bookRoutes');
 const authorRoutes = require('./routes/authorRoutes');
 const userRoutes = require('./routes/userRoutes');
 const loanRoutes = require('./routes/loanRoutes');
+const dashboardRoutes = require('./routes/dashboardRoutes');
 
 const app = express();
 
@@ -34,10 +37,11 @@ app.use(session({
 
 // Middleware
 app.use(cors({
-  origin: true, // Permitir todos los origins para testing
+  origin: ['http://localhost:3000', 'http://127.0.0.1:3000', 'http://localhost:5500'], // Origins permitidos
   credentials: true // Permitir cookies de sesión
 }));
 app.use(express.json());
+app.use(logger);
 
 // Rutas
 app.use('/api/auth', authRoutes);
@@ -45,6 +49,10 @@ app.use('/api/books', bookRoutes);
 app.use('/api/authors', authorRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/loans', loanRoutes);
+app.use('/api/dashboard', dashboardRoutes);
+
+// Middleware de manejo de errores
+app.use(errorHandler);
 
 // Ruta de prueba
 app.get('/', (req, res) => {

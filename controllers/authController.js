@@ -1,10 +1,26 @@
 const User = require('../models/User');
+const { validateEmail, validatePassword } = require('../utils/validations');
 
 const authController = {
   // Registro simple
   register: async (req, res) => {
     try {
       const { name, username, email, password, phone, address } = req.body;
+
+      // Validar campos requeridos
+      if (!name || !username || !email || !password) {
+        return res.status(400).json({ message: 'Nombre, username, email y password son requeridos' });
+      }
+
+      // Validar email
+      if (!validateEmail(email)) {
+        return res.status(400).json({ message: 'Email inválido' });
+      }
+
+      // Validar password
+      if (!validatePassword(password)) {
+        return res.status(400).json({ message: 'La contraseña debe tener al menos 6 caracteres, una mayúscula, una minúscula y un número' });
+      }
 
       // Verificar si el usuario ya existe
       const existingUser = await User.findOne({ $or: [{ email }, { username }] });
@@ -43,24 +59,20 @@ const authController = {
   login: async (req, res) => {
     try {
       const { email, username, password } = req.body;
-      console.log('Login attempt:', { email, username, password });
       const input = email || username;
       if (!input) {
         return res.status(400).json({ message: 'Debe proporcionar email o username' });
       }
       const normalizedInput = input.toLowerCase();
-      console.log('Normalized input:', normalizedInput);
 
       // Buscar usuario por email o username
       const user = await User.findOne({ $or: [{ email: normalizedInput }, { username: normalizedInput }] });
-      console.log('User found:', user ? { id: user._id, email: user.email, username: user.username } : null);
       if (!user) {
         return res.status(400).json({ message: 'Credenciales inválidas' });
       }
 
       // Verificar contraseña
       const isValidPassword = await user.comparePassword(password);
-      console.log('Password valid:', isValidPassword);
       if (!isValidPassword) {
         return res.status(400).json({ message: 'Credenciales inválidas' });
       }

@@ -32,10 +32,10 @@ const loanSchema = new mongoose.Schema({
 
 // Middleware para calcular estado automáticamente
 loanSchema.pre('save', function(next) {
-  if (!this.returnDate && this.dueDate < new Date()) {
-    this.status = 'overdue';
-  } else if (this.returnDate) {
+  if (this.returnDate && this.status !== 'returned') {
     this.status = 'returned';
+  } else if (!this.returnDate && this.dueDate < new Date() && this.status !== 'overdue') {
+    this.status = 'overdue';
   }
   next();
 });

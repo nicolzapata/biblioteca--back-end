@@ -6,7 +6,6 @@ const loanController = {
   // Obtener todos los préstamos
   getAllLoans: async (req, res) => {
     try {
-      console.log('🔍 Solicitud para obtener todos los préstamos');
       const loans = await Loan.find()
         .populate('user', 'name email')
         .populate('book', 'title isbn')
@@ -19,12 +18,8 @@ const loanController = {
         })
         .sort({ createdAt: -1 });
 
-      console.log(`📊 Encontrados ${loans.length} préstamos`);
-      console.log('Préstamos:', loans);
-
       res.json({ loans });
     } catch (error) {
-      console.error('❌ Error al obtener préstamos:', error);
       res.status(500).json({ message: 'Error del servidor' });
     }
   },
@@ -32,7 +27,6 @@ const loanController = {
   // Obtener préstamo por ID
   getLoanById: async (req, res) => {
     try {
-      console.log(`🔍 Solicitud para obtener préstamo con ID: ${req.params.id}`);
       const loan = await Loan.findById(req.params.id)
         .populate('user', 'name email')
         .populate('book', 'title isbn')
@@ -45,14 +39,11 @@ const loanController = {
         });
 
       if (!loan) {
-        console.log('❌ Préstamo no encontrado');
         return res.status(404).json({ message: 'Préstamo no encontrado' });
       }
 
-      console.log('✅ Préstamo encontrado:', loan);
       res.json({ loan });
     } catch (error) {
-      console.error('❌ Error al obtener préstamo:', error);
       res.status(500).json({ message: 'Error del servidor' });
     }
   },
@@ -78,6 +69,16 @@ const loanController = {
         return res.status(404).json({ message: 'Usuario no encontrado' });
       }
 
+      // Verificar que el usuario no tenga ya un préstamo activo para este libro
+      const existingLoan = await Loan.findOne({
+        user: userId,
+        book: bookId,
+        status: { $in: ['active', 'overdue'] }
+      });
+      if (existingLoan) {
+        return res.status(400).json({ message: 'El usuario ya tiene un préstamo activo para este libro' });
+      }
+
       // Crear el préstamo
       const loan = new Loan({
         user: userId,
@@ -100,7 +101,6 @@ const loanController = {
         loan
       });
     } catch (error) {
-      console.error('Error al crear préstamo:', error);
       res.status(500).json({ message: 'Error del servidor' });
     }
   },
@@ -134,7 +134,6 @@ const loanController = {
         loan
       });
     } catch (error) {
-      console.error('Error al devolver libro:', error);
       res.status(500).json({ message: 'Error del servidor' });
     }
   },
@@ -165,7 +164,6 @@ const loanController = {
         loan
       });
     } catch (error) {
-      console.error('Error al actualizar préstamo:', error);
       res.status(500).json({ message: 'Error del servidor' });
     }
   },

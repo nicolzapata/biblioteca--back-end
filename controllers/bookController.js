@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const Book = require('../models/Book');
 const Author = require('../models/Author');
+const { validateISBN } = require('../utils/validations');
 
 const bookController = {
   // Obtener todos los libros
@@ -12,7 +13,6 @@ const bookController = {
 
       res.json({ books });
     } catch (error) {
-      console.error('Error al obtener libros:', error);
       res.status(500).json({ message: 'Error del servidor' });
     }
   },
@@ -48,6 +48,11 @@ const bookController = {
         totalCopies
       } = req.body;
 
+      // Validar ISBN
+      if (!validateISBN(isbn)) {
+        return res.status(400).json({ message: 'ISBN inválido' });
+      }
+
       // Verificar que el autor existe
       const authorExists = await Author.findById(author);
       if (!authorExists) {
@@ -79,7 +84,6 @@ const bookController = {
       if (error.code === 11000) {
         return res.status(400).json({ message: 'El ISBN ya existe' });
       }
-      console.error('Error al crear libro:', error);
       res.status(500).json({ message: 'Error del servidor' });
     }
   },
@@ -87,7 +91,6 @@ const bookController = {
   // Actualizar libro
   updateBook: async (req, res) => {
     try {
-      console.log('Datos recibidos para actualizar libro:', req.body);
       // Filtrar campos vacíos para evitar problemas con validaciones en campos opcionales
       const updateData = Object.fromEntries(
         Object.entries(req.body).filter(([key, value]) => value !== "")
@@ -95,17 +98,13 @@ const bookController = {
 
       // Si author es un string (nombre), buscar el autor por nombre
       if (updateData.author && typeof updateData.author === 'string' && !mongoose.Types.ObjectId.isValid(updateData.author)) {
-        console.log('Buscando autor por nombre:', updateData.author);
         const author = await Author.findOne({ name: updateData.author });
         if (!author) {
-          console.log('Autor no encontrado');
           return res.status(400).json({ message: 'Autor no encontrado' });
         }
         updateData.author = author._id;
-        console.log('Autor encontrado, ID:', author._id);
       }
 
-      console.log('Datos finales para actualizar:', updateData);
       const book = await Book.findByIdAndUpdate(
         req.params.id,
         updateData,
@@ -113,18 +112,14 @@ const bookController = {
       ).populate('author');
 
       if (!book) {
-        console.log('Libro no encontrado');
         return res.status(404).json({ message: 'Libro no encontrado' });
       }
 
-      console.log('Libro actualizado:', book);
       res.json({
         message: 'Libro actualizado exitosamente',
         book
       });
     } catch (error) {
-      console.error('Error al actualizar libro:', error);
-      console.error('Stack:', error.stack);
       res.status(500).json({ message: 'Error del servidor' });
     }
   },
