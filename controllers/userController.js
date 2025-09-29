@@ -17,6 +17,10 @@ const userController = {
   // Obtener usuario por ID
   getUserById: async (req, res) => {
     try {
+      if (req.params.id !== req.user.id && req.user.role !== 'admin') {
+        return res.status(403).json({ message: 'No autorizado' });
+      }
+
       const user = await User.findById(req.params.id).select('-password');
       
       if (!user) {
@@ -62,18 +66,52 @@ const userController = {
         return res.status(404).json({ message: 'Usuario no encontrado' });
       }
 
-      user.isActive = !user.isActive;
-      await user.save();
+      const newIsActive = !user.isActive;
+
+      const updatedUser = await User.findByIdAndUpdate(
+        req.params.id,
+        { isActive: newIsActive },
+        { new: true, runValidators: false }
+      );
 
       res.json({
-        message: `Usuario ${user.isActive ? 'activado' : 'desactivado'} exitosamente`,
+        message: `Usuario ${updatedUser.isActive ? 'activado' : 'desactivado'} exitosamente`,
         user: {
-          id: user._id,
-          name: user.name,
-          email: user.email,
-          isActive: user.isActive
+          id: updatedUser._id,
+          name: updatedUser.name,
+          email: updatedUser.email,
+          isActive: updatedUser.isActive
         }
       });
+    } catch (error) {
+      console.error('Error en toggleUserStatus:', error);
+      res.status(500).json({ message: 'Error interno del servidor' });
+    }
+  },
+
+  // Cambiar contraseña
+  changePassword: async (req, res) => {
+    try {
+      const { oldPassword, newPassword } = req.body;
+
+      if (!oldPassword || !newPassword) {
+        return res.status(400).json({ message: 'Contraseña actual y nueva son requeridas' });
+      }
+
+      const user = await User.findById(req.user.id);
+      if (!user) {
+        return res.status(404).json({ message: 'Usuario no encontrado' });
+      }
+
+      const isValid = await user.comparePassword(oldPassword);
+      if (!isValid) {
+        return res.status(400).json({ message: 'Contraseña actual incorrecta' });
+      }
+
+      user.password = newPassword;
+      await user.save();
+
+      res.json({ message: 'Contraseña cambiada exitosamente' });
     } catch (error) {
       res.status(500).json({ message: 'Error del servidor' });
     }

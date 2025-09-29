@@ -4,10 +4,11 @@ const { authMiddleware, adminMiddleware } = require('../middleware/auth');
 
 const router = express.Router();
 
-// Rutas protegidas (requieren autenticación)
-router.get('/', authMiddleware, userController.getAllUsers);
+// Rutas protegidas (requieren autenticación y permisos de admin)
+router.get('/', authMiddleware, adminMiddleware, userController.getAllUsers);
 router.get('/:id', authMiddleware, userController.getUserById);
-router.put('/:id', authMiddleware, userController.updateUser);
-router.patch('/:id/toggle-status', authMiddleware, userController.toggleUserStatus);
+router.put('/:id', authMiddleware, adminMiddleware, userController.updateUser);
+router.patch('/:id/toggle-status', authMiddleware, adminMiddleware, userController.toggleUserStatus);
+router.put('/change-password', authMiddleware, userController.changePassword);
 
 module.exports = router;

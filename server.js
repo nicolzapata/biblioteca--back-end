@@ -31,7 +31,8 @@ app.use(session({
     collectionName: 'sessions'
   }),
   cookie: {
-    maxAge: 1000 * 60 * 60 * 24 // 24 horas
+    maxAge: 1000 * 60 * 60 * 24, // 24 horas
+    sameSite: 'lax'
   }
 }));
 
