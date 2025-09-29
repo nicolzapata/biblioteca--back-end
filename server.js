@@ -41,6 +41,7 @@ app.use(cors({
   credentials: true // Permitir cookies de sesión
 }));
 app.use(express.json());
+app.use('/uploads', express.static('uploads'));
 app.use(logger);
 
 // Rutas

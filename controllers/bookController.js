@@ -45,7 +45,8 @@ const bookController = {
         pages,
         language,
         description,
-        totalCopies
+        image,
+        availableCopies
       } = req.body;
 
       // Validar ISBN
@@ -69,8 +70,9 @@ const bookController = {
         pages,
         language,
         description,
-        totalCopies,
-        availableCopies: totalCopies
+        image,
+        totalCopies: 1,
+        availableCopies
       });
 
       await book.save();
@@ -91,10 +93,15 @@ const bookController = {
   // Actualizar libro
   updateBook: async (req, res) => {
     try {
-      // Filtrar campos vacíos para evitar problemas con validaciones en campos opcionales
+      // Filtrar campos undefined para evitar problemas con validaciones
       const updateData = Object.fromEntries(
-        Object.entries(req.body).filter(([key, value]) => value !== "")
+        Object.entries(req.body).filter(([key, value]) => value !== undefined && value !== '')
       );
+
+      // Si hay archivo de imagen, agregar la ruta
+      if (req.file) {
+        updateData.image = `/uploads/${req.file.filename}`;
+      }
 
       // Si author es un string (nombre), buscar el autor por nombre
       if (updateData.author && typeof updateData.author === 'string' && !mongoose.Types.ObjectId.isValid(updateData.author)) {
