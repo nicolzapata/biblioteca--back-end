@@ -10,5 +10,6 @@ router.get('/:id', authMiddleware, userController.getUserById);
 router.put('/:id', authMiddleware, adminMiddleware, userController.updateUser);
 router.patch('/:id/toggle-status', authMiddleware, adminMiddleware, userController.toggleUserStatus);
 router.put('/change-password', authMiddleware, userController.changePassword);
+router.put('/profile', authMiddleware, userController.updateProfile);
 
 module.exports = router;
