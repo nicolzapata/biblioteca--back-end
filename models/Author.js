@@ -12,6 +12,15 @@ const authorSchema = new mongoose.Schema({
   },
   birthDate: Date,
   nationality: String,
+  genre: String,
+  language: String,
+  photo: {
+    type: String,
+    default: 'https://via.placeholder.com/150x200?text=Autor'
+  },
+  works: String,
+  awards: String,
+  socialMedia: String,
   isActive: {
     type: Boolean,
     default: true

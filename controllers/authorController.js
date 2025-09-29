@@ -46,10 +46,16 @@ const authorController = {
   // Actualizar autor
   updateAuthor: async (req, res) => {
     try {
-      // Filtrar campos vacíos para evitar problemas con validaciones en campos opcionales
+      // Filtrar campos undefined para evitar problemas con validaciones
       const updateData = Object.fromEntries(
-        Object.entries(req.body).filter(([key, value]) => value !== "")
+        Object.entries(req.body).filter(([key, value]) => value !== undefined && value !== '')
       );
+
+      // Si hay archivo de foto, agregar la ruta
+      if (req.file) {
+        updateData.photo = `/uploads/${req.file.filename}`;
+      }
+
       const author = await Author.findByIdAndUpdate(
         req.params.id,
         updateData,
