@@ -38,14 +38,17 @@ const userController = {
     try {
       const userId = req.params.id && req.params.id !== 'undefined' ? req.params.id : req.user.id;
 
-      const { password, username, nombre, email, telefono, address, bio, ...otherData } = req.body;
+      const { password, username, name, email, phone, address, lastName, bio, foto, ...otherData } = req.body;
 
       const updateData = {};
       if (username !== undefined && username.trim() !== '') updateData.username = username.trim().toLowerCase();
-      if (nombre !== undefined && nombre.trim() !== '') updateData.name = nombre.trim();
+      if (name !== undefined && name.trim() !== '') updateData.name = name.trim();
       if (email !== undefined && email.trim() !== '') updateData.email = email.trim().toLowerCase();
-      if (telefono !== undefined && telefono.trim() !== '') updateData.phone = telefono.trim();
+      if (phone !== undefined && phone.trim() !== '') updateData.phone = phone.trim();
       if (address !== undefined && address.trim() !== '') updateData.address = address.trim();
+      if (lastName !== undefined && lastName.trim() !== '') updateData.lastName = lastName.trim();
+      if (bio !== undefined && bio.trim() !== '') updateData.bio = bio.trim();
+      if (foto !== undefined && foto.trim() !== '') updateData.foto = foto.trim();
 
       // Verificar que haya al menos un campo para actualizar
       if (Object.keys(updateData).length === 0) {
@@ -69,7 +72,10 @@ const userController = {
         email: user.email,
         role: user.role,
         phone: user.phone,
-        address: user.address
+        address: user.address,
+        lastName: user.lastName,
+        bio: user.bio,
+        foto: user.foto
       };
 
       res.json({
@@ -110,7 +116,10 @@ const userController = {
           email: updatedUser.email,
           role: updatedUser.role,
           phone: updatedUser.phone,
-          address: updatedUser.address
+          address: updatedUser.address,
+          lastName: updatedUser.lastName,
+          bio: updatedUser.bio,
+          foto: updatedUser.foto
         };
       }
 
@@ -160,14 +169,17 @@ const userController = {
   // Actualizar perfil del usuario actual
   updateProfile: async (req, res) => {
       try {
-          const { password, username, nombre, email, telefono, address, ...otherData } = req.body;
+          const { password, username, name, email, phone, address, lastName, bio, foto, ...otherData } = req.body;
 
           const updateData = {};
           if (username !== undefined && username.trim() !== '') updateData.username = username.trim().toLowerCase();
-          if (nombre !== undefined && nombre.trim() !== '') updateData.name = nombre.trim();
+          if (name !== undefined && name.trim() !== '') updateData.name = name.trim();
           if (email !== undefined && email.trim() !== '') updateData.email = email.trim().toLowerCase();
-          if (telefono !== undefined && telefono.trim() !== '') updateData.phone = telefono.trim();
+          if (phone !== undefined && phone.trim() !== '') updateData.phone = phone.trim();
           if (address !== undefined && address.trim() !== '') updateData.address = address.trim();
+          if (lastName !== undefined && lastName.trim() !== '') updateData.lastName = lastName.trim();
+          if (bio !== undefined && bio.trim() !== '') updateData.bio = bio.trim();
+          if (foto !== undefined && foto.trim() !== '') updateData.foto = foto.trim();
 
           // Verificar que haya al menos un campo para actualizar
           if (Object.keys(updateData).length === 0) {
@@ -192,6 +204,7 @@ const userController = {
               role: user.role,
               phone: user.phone,
               address: user.address,
+              lastName: user.lastName,
               bio: user.bio,
               foto: user.foto
           };

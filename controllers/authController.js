@@ -5,7 +5,7 @@ const authController = {
   // Registro simple
   register: async (req, res) => {
     try {
-      const { name, username, email, password, phone, address } = req.body;
+      const { name, username, email, password, phone, address, lastName, bio, foto } = req.body;
 
       // Validar campos requeridos
       if (!name || !username || !email || !password) {
@@ -29,14 +29,17 @@ const authController = {
       }
 
       // Crear nuevo usuario
-      const user = new User({
-        name,
-        username,
-        email,
-        password,
-        phone,
-        address
-      });
+       const user = new User({
+         name,
+         username,
+         email,
+         password,
+         phone,
+         address,
+         lastName,
+         bio,
+         foto
+       });
 
       await user.save();
 
@@ -84,7 +87,10 @@ const authController = {
         email: user.email,
         role: user.role,
         phone: user.phone,
-        address: user.address
+        address: user.address,
+        lastName: user.lastName,
+        bio: user.bio,
+        foto: user.foto
       };
 
       res.json({
@@ -132,7 +138,10 @@ const authController = {
           email: user.email,
           role: user.role,
           phone: user.phone,
-          address: user.address
+          address: user.address,
+          lastName: user.lastName,
+          bio: user.bio,
+          foto: user.foto
         }
       });
     } catch (error) {
