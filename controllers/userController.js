@@ -41,12 +41,11 @@ const userController = {
       const { password, username, nombre, email, telefono, address, bio, ...otherData } = req.body;
 
       const updateData = {};
-      if (username && username.trim()) updateData.username = username.trim().toLowerCase();
-      if (nombre && nombre.trim()) updateData.name = nombre.trim();
-      if (email && email.trim()) updateData.email = email.trim().toLowerCase();
-      if (telefono && telefono.trim()) updateData.phone = telefono.trim();
-      if (address && address.trim()) updateData.address = address.trim();
-      if (bio && bio.trim()) updateData.address = bio.trim(); // Asumir bio como address si no hay address
+      if (username !== undefined) updateData.username = username.trim().toLowerCase();
+      if (nombre !== undefined) updateData.name = nombre.trim();
+      if (email !== undefined) updateData.email = email.trim().toLowerCase();
+      if (telefono !== undefined) updateData.phone = telefono.trim();
+      if (address !== undefined) updateData.address = address.trim();
 
       // Verificar que haya al menos un campo para actualizar
       if (Object.keys(updateData).length === 0) {
@@ -139,13 +138,13 @@ const userController = {
   // Actualizar perfil del usuario actual
   updateProfile: async (req, res) => {
       try {
-          const { name, email, phone, address } = req.body;
+          const { nombre: name, email, telefono: phone, address } = req.body;
 
           const updateData = {};
-          if (name && name.trim()) updateData.name = name.trim();
-          if (email && email.trim()) updateData.email = email.trim().toLowerCase();
-          if (phone && phone.trim()) updateData.phone = phone.trim();
-          if (address && address.trim()) updateData.address = address.trim();
+          if (name !== undefined) updateData.name = name.trim();
+          if (email !== undefined) updateData.email = email.trim().toLowerCase();
+          if (phone !== undefined) updateData.phone = phone.trim();
+          if (address !== undefined) updateData.address = address.trim();
 
           // Verificar que haya al menos un campo para actualizar
           if (Object.keys(updateData).length === 0) {
@@ -161,6 +160,16 @@ const userController = {
           if (!user) {
               return res.status(404).json({ message: 'Usuario no encontrado' });
           }
+
+          // Actualizar la sesión con los nuevos datos
+          req.session.user = {
+              id: user._id,
+              name: user.name,
+              email: user.email,
+              role: user.role,
+              phone: user.phone,
+              address: user.address
+          };
 
           res.json({
               message: 'Perfil actualizado exitosamente',

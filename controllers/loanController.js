@@ -168,6 +168,59 @@ const loanController = {
     }
   },
 
+  // Obtener mis préstamos
+  getMyLoans: async (req, res) => {
+    try {
+      const loans = await Loan.find({ user: req.user.id })
+        .populate('user', 'name email')
+        .populate('book', 'title isbn')
+        .populate({
+          path: 'book',
+          populate: {
+            path: 'author',
+            select: 'name'
+          }
+        })
+        .sort({ createdAt: -1 });
+
+      res.json({ loans });
+    } catch (error) {
+      res.status(500).json({ message: 'Error del servidor' });
+    }
+  },
+
+  // Obtener préstamos por usuario
+  getLoansByUser: async (req, res) => {
+    try {
+      let userId = req.params.userId;
+
+      if (userId === 'me') {
+        userId = req.user.id;
+      }
+
+      // Verificar que el usuario pueda ver sus propios préstamos o sea admin
+      if (req.user.id !== userId && req.user.role !== 'admin') {
+        return res.status(403).json({ message: 'No autorizado' });
+      }
+
+      const loans = await Loan.find({ user: userId })
+        .populate('user', 'name email')
+        .populate('book', 'title isbn')
+        .populate({
+          path: 'book',
+          populate: {
+            path: 'author',
+            select: 'name'
+          }
+        })
+        .sort({ createdAt: -1 });
+
+      res.json({ loans });
+    } catch (error) {
+      res.status(500).json({ message: 'Error del servidor' });
+    }
+  },
+
   // Obtener estadísticas
   getStats: async (req, res) => {
     try {

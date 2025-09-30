@@ -82,7 +82,9 @@ const authController = {
         id: user._id,
         name: user.name,
         email: user.email,
-        role: user.role
+        role: user.role,
+        phone: user.phone,
+        address: user.address
       };
 
       res.json({
@@ -112,10 +114,30 @@ const authController = {
 
   // Obtener usuario actual de la sesión
   getCurrentUser: async (req, res) => {
-    if (req.session.user) {
-      res.json({ user: req.session.user });
-    } else {
-      res.status(401).json({ message: 'No hay sesión activa' });
+    try {
+      if (!req.session.user || !req.session.user.id) {
+        return res.status(401).json({ message: 'No hay sesión activa' });
+      }
+
+      const user = await User.findById(req.session.user.id).select('-password');
+      if (!user) {
+        return res.status(404).json({ message: 'Usuario no encontrado' });
+      }
+
+      res.json({
+        user: {
+          id: user._id,
+          name: user.name,
+          username: user.username,
+          email: user.email,
+          role: user.role,
+          phone: user.phone,
+          address: user.address
+        }
+      });
+    } catch (error) {
+      console.error('Error en getCurrentUser:', error);
+      res.status(500).json({ message: 'Error del servidor' });
     }
   }
 };
