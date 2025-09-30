@@ -21,6 +21,11 @@ const authorSchema = new mongoose.Schema({
   works: String,
   awards: String,
   socialMedia: String,
+  createdBy: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: true
+  },
   isActive: {
     type: Boolean,
     default: true

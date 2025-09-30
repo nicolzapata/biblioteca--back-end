@@ -2,7 +2,7 @@ const express = require('express');
 const multer = require('multer');
 const path = require('path');
 const authorController = require('../controllers/authorController');
-const { authMiddleware, adminMiddleware } = require('../middleware/auth');
+const { authMiddleware, adminMiddleware, checkAuthorOwnership } = require('../middleware/auth');
 
 const router = express.Router();
 
@@ -23,9 +23,9 @@ const upload = multer({ storage: storage });
 router.get('/', authorController.getAllAuthors);
 router.get('/:id', authorController.getAuthorById);
 
-// Rutas protegidas (requieren autenticación y admin)
-router.post('/', authMiddleware, adminMiddleware, authorController.createAuthor);
-router.put('/:id', authMiddleware, adminMiddleware, upload.single('photo'), authorController.updateAuthor);
-router.delete('/:id', authMiddleware, adminMiddleware, authorController.deleteAuthor);
+// Rutas protegidas (requieren autenticación)
+router.post('/', authMiddleware, authorController.createAuthor);
+router.put('/:id', authMiddleware, checkAuthorOwnership, upload.single('photo'), authorController.updateAuthor);
+router.delete('/:id', authMiddleware, checkAuthorOwnership, authorController.deleteAuthor);
 
 module.exports = router;

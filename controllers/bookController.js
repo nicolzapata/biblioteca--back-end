@@ -72,7 +72,8 @@ const bookController = {
         description,
         image,
         totalCopies: 1,
-        availableCopies
+        availableCopies,
+        createdBy: req.user.id
       });
 
       await book.save();

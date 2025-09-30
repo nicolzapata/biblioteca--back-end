@@ -45,6 +45,11 @@ const bookSchema = new mongoose.Schema({
     required: true,
     min: 0
   },
+  createdBy: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: true
+  },
   isActive: {
     type: Boolean,
     default: true

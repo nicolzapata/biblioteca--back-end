@@ -31,7 +31,12 @@ const authorController = {
   // Crear nuevo autor
   createAuthor: async (req, res) => {
     try {
-      const author = new Author(req.body);
+      const authorData = {
+        ...req.body,
+        createdBy: req.user.id
+      };
+      
+      const author = new Author(authorData);
       await author.save();
 
       res.status(201).json({

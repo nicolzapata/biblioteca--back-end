@@ -2,7 +2,7 @@ const express = require('express');
 const multer = require('multer');
 const path = require('path');
 const bookController = require('../controllers/bookController');
-const { authMiddleware, adminMiddleware } = require('../middleware/auth');
+const { authMiddleware, adminMiddleware, checkBookOwnership } = require('../middleware/auth');
 
 const router = express.Router();
 
@@ -24,8 +24,8 @@ router.get('/', bookController.getAllBooks);
 router.get('/:id', bookController.getBookById);
 
 // Rutas protegidas (requieren autenticación)
-router.post('/', authMiddleware, adminMiddleware, bookController.createBook);
-router.put('/:id', authMiddleware, adminMiddleware, upload.single('image'), bookController.updateBook);
-router.delete('/:id', authMiddleware, adminMiddleware, bookController.deleteBook);
+router.post('/', authMiddleware, bookController.createBook);
+router.put('/:id', authMiddleware, checkBookOwnership, upload.single('image'), bookController.updateBook);
+router.delete('/:id', authMiddleware, checkBookOwnership, bookController.deleteBook);
 
 module.exports = router;
