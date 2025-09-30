@@ -41,11 +41,11 @@ const userController = {
       const { password, username, nombre, email, telefono, address, bio, ...otherData } = req.body;
 
       const updateData = {};
-      if (username !== undefined) updateData.username = username.trim().toLowerCase();
-      if (nombre !== undefined) updateData.name = nombre.trim();
-      if (email !== undefined) updateData.email = email.trim().toLowerCase();
-      if (telefono !== undefined) updateData.phone = telefono.trim();
-      if (address !== undefined) updateData.address = address.trim();
+      if (username !== undefined && username.trim() !== '') updateData.username = username.trim().toLowerCase();
+      if (nombre !== undefined && nombre.trim() !== '') updateData.name = nombre.trim();
+      if (email !== undefined && email.trim() !== '') updateData.email = email.trim().toLowerCase();
+      if (telefono !== undefined && telefono.trim() !== '') updateData.phone = telefono.trim();
+      if (address !== undefined && address.trim() !== '') updateData.address = address.trim();
 
       // Verificar que haya al menos un campo para actualizar
       if (Object.keys(updateData).length === 0) {
@@ -61,6 +61,16 @@ const userController = {
       if (!user) {
         return res.status(404).json({ message: 'Usuario no encontrado' });
       }
+
+      // Actualizar la sesión con los nuevos datos
+      req.session.user = {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        phone: user.phone,
+        address: user.address
+      };
 
       res.json({
         message: 'Usuario actualizado exitosamente',
@@ -91,6 +101,18 @@ const userController = {
         { isActive: newIsActive },
         { new: true, runValidators: false }
       );
+
+      // Actualizar la sesión si es el usuario actual
+      if (req.params.id === req.user.id) {
+        req.session.user = {
+          id: updatedUser._id,
+          name: updatedUser.name,
+          email: updatedUser.email,
+          role: updatedUser.role,
+          phone: updatedUser.phone,
+          address: updatedUser.address
+        };
+      }
 
       res.json({
         message: `Usuario ${updatedUser.isActive ? 'activado' : 'desactivado'} exitosamente`,
@@ -138,13 +160,14 @@ const userController = {
   // Actualizar perfil del usuario actual
   updateProfile: async (req, res) => {
       try {
-          const { nombre: name, email, telefono: phone, address } = req.body;
+          const { password, username, nombre, email, telefono, address, ...otherData } = req.body;
 
           const updateData = {};
-          if (name !== undefined) updateData.name = name.trim();
-          if (email !== undefined) updateData.email = email.trim().toLowerCase();
-          if (phone !== undefined) updateData.phone = phone.trim();
-          if (address !== undefined) updateData.address = address.trim();
+          if (username !== undefined && username.trim() !== '') updateData.username = username.trim().toLowerCase();
+          if (nombre !== undefined && nombre.trim() !== '') updateData.name = nombre.trim();
+          if (email !== undefined && email.trim() !== '') updateData.email = email.trim().toLowerCase();
+          if (telefono !== undefined && telefono.trim() !== '') updateData.phone = telefono.trim();
+          if (address !== undefined && address.trim() !== '') updateData.address = address.trim();
 
           // Verificar que haya al menos un campo para actualizar
           if (Object.keys(updateData).length === 0) {
@@ -168,7 +191,9 @@ const userController = {
               email: user.email,
               role: user.role,
               phone: user.phone,
-              address: user.address
+              address: user.address,
+              bio: user.bio,
+              foto: user.foto
           };
 
           res.json({
@@ -177,7 +202,7 @@ const userController = {
           });
       } catch (error) {
           if (error.code === 11000) { // Duplicate key error
-              return res.status(400).json({ message: 'El email ya está en uso' });
+              return res.status(400).json({ message: 'El username o email ya está en uso' });
           }
           console.error('Error en updateProfile:', error);
           res.status(500).json({ message: 'Error del servidor' });
