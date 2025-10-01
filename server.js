@@ -38,7 +38,7 @@ app.use(session({
 
 // Middleware
 app.use(cors({
-  origin: ['http://localhost:3000', 'http://127.0.0.1:3000', 'http://localhost:5500', 'http://localhost:5173', 'http://127.0.0.1:5173'], // Origins permitidos
+  origin: ['http://localhost:3000', 'http://127.0.0.1:3000', 'http://localhost:5500', 'http://localhost:5173', 'http://127.0.0.1:5173', 'null'], // Origins permitidos (incluyendo 'null' para archivos locales)
   credentials: true // Permitir cookies de sesión
 }));
 app.use(express.json());
@@ -65,7 +65,7 @@ app.get('/', (req, res) => {
   });
 });
 
-const PORT = process.env.PORT || 5002;
+const PORT = process.env.PORT || 5000;
 
 console.log(`Starting server on port ${PORT}...`);
 

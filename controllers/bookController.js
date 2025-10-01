@@ -9,9 +9,24 @@ const bookController = {
     try {
       const books = await Book.find({ isActive: true })
         .populate('author', 'name')
+        .populate('createdBy', 'name username')
         .sort({ createdAt: -1 });
 
-      res.json({ books });
+      // Agregar información de permisos si el usuario está autenticado
+      const booksWithPermissions = books.map(book => {
+        const bookObj = book.toObject();
+        
+        // Determinar si el usuario puede editar este libro
+        if (req.user) {
+          bookObj.canEdit = req.user.role === 'admin' || (book.createdBy && book.createdBy._id.toString() === req.user.id);
+        } else {
+          bookObj.canEdit = false;
+        }
+        
+        return bookObj;
+      });
+
+      res.json({ books: booksWithPermissions });
     } catch (error) {
       res.status(500).json({ message: 'Error del servidor' });
     }
@@ -20,13 +35,24 @@ const bookController = {
   // Obtener libro por ID
   getBookById: async (req, res) => {
     try {
-      const book = await Book.findById(req.params.id).populate('author');
+      const book = await Book.findById(req.params.id)
+        .populate('author')
+        .populate('createdBy', 'name username');
       
       if (!book) {
         return res.status(404).json({ message: 'Libro no encontrado' });
       }
 
-      res.json({ book });
+      const bookObj = book.toObject();
+      
+      // Agregar información de permisos si el usuario está autenticado
+      if (req.user) {
+        bookObj.canEdit = req.user.role === 'admin' || (book.createdBy && book.createdBy._id.toString() === req.user.id);
+      } else {
+        bookObj.canEdit = false;
+      }
+
+      res.json({ book: bookObj });
     } catch (error) {
       res.status(500).json({ message: 'Error del servidor' });
     }

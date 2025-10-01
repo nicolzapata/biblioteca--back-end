@@ -5,9 +5,24 @@ const authorController = {
   getAllAuthors: async (req, res) => {
     try {
       const authors = await Author.find({ isActive: true })
+        .populate('createdBy', 'name username')
         .sort({ name: 1 });
 
-      res.json({ authors });
+      // Agregar información de permisos si el usuario está autenticado
+      const authorsWithPermissions = authors.map(author => {
+        const authorObj = author.toObject();
+        
+        // Determinar si el usuario puede editar este autor
+        if (req.user) {
+          authorObj.canEdit = req.user.role === 'admin' || (author.createdBy && author.createdBy._id.toString() === req.user.id);
+        } else {
+          authorObj.canEdit = false;
+        }
+        
+        return authorObj;
+      });
+
+      res.json({ authors: authorsWithPermissions });
     } catch (error) {
       res.status(500).json({ message: 'Error del servidor' });
     }
@@ -16,13 +31,23 @@ const authorController = {
   // Obtener autor por ID
   getAuthorById: async (req, res) => {
     try {
-      const author = await Author.findById(req.params.id);
+      const author = await Author.findById(req.params.id)
+        .populate('createdBy', 'name username');
       
       if (!author) {
         return res.status(404).json({ message: 'Autor no encontrado' });
       }
 
-      res.json({ author });
+      const authorObj = author.toObject();
+      
+      // Agregar información de permisos si el usuario está autenticado
+      if (req.user) {
+        authorObj.canEdit = req.user.role === 'admin' || (author.createdBy && author.createdBy._id.toString() === req.user.id);
+      } else {
+        authorObj.canEdit = false;
+      }
+
+      res.json({ author: authorObj });
     } catch (error) {
       res.status(500).json({ message: 'Error del servidor' });
     }

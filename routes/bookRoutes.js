@@ -2,7 +2,7 @@ const express = require('express');
 const multer = require('multer');
 const path = require('path');
 const bookController = require('../controllers/bookController');
-const { authMiddleware, adminMiddleware, checkBookOwnership } = require('../middleware/auth');
+const { authMiddleware, optionalAuthMiddleware, adminMiddleware, checkBookOwnership } = require('../middleware/auth');
 
 const router = express.Router();
 
@@ -19,9 +19,9 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage: storage });
 
-// Rutas públicas (solo lectura)
-router.get('/', bookController.getAllBooks);
-router.get('/:id', bookController.getBookById);
+// Rutas públicas (solo lectura) con middleware opcional para detectar usuario autenticado
+router.get('/', optionalAuthMiddleware, bookController.getAllBooks);
+router.get('/:id', optionalAuthMiddleware, bookController.getBookById);
 
 // Rutas protegidas (requieren autenticación)
 router.post('/', authMiddleware, bookController.createBook);
